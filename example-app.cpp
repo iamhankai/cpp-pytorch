@@ -1,6 +1,7 @@
 #include <torch/script.h>
 #include <torch/torch.h> 
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <iostream>
 #include <memory>
@@ -19,6 +20,14 @@ int main(int argc, const char* argv[]) {
 
   // Create a vector of inputs.
   std::vector<torch::jit::IValue> inputs;
+  inputs.push_back(torch::rand({256, 3, 224, 224}));
+
+  // evalute time
+  double t = (double)cv::getTickCount();
+  module->forward(inputs).toTensor();
+  t = (double)cv::getTickCount() - t;
+  printf("execution time = %gs\n", t / cv::getTickFrequency());
+  inputs.pop_back();
 
   // load image with opencv
   cv::Mat image;
