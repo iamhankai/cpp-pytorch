@@ -27,3 +27,8 @@ make
 ```
 ./example-app ../model.pt ../dog.png ../synset_words.txt
 ```
+
+Input image:
+![](dog.png)
+
+classification result: `predicted label: n02108422 bull mastiff`, bingo!
