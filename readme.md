@@ -28,7 +28,7 @@ make
 ./example-app ../model.pt ../dog.png ../synset_words.txt
 ```
 
-Input image:
+Input image and predicted label: `n02108422 bull mastiff`, bingo!
+
 ![](dog.png)
 
-classification result: `predicted label: n02108422 bull mastiff`, bingo!
