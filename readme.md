@@ -1,5 +1,6 @@
 ## cpp-pytorch
 PyTroch 1.0 preview - LOADING A PYTORCH MODEL IN C++
+
 Details refer to: https://shiftlab.github.io/pytorch_tutorials/advanced/cpp_export.html
 
 Main requires: PyTroch 1.0, opencv, cmake
@@ -24,5 +25,5 @@ make
 
 3. Run demo
 ```
-./exexample-app ../model.pt ../dog.png
+./example-app ../model.pt ../dog.png ../synset_words.txt
 ```
