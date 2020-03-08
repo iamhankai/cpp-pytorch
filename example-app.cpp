@@ -1,6 +1,8 @@
 #include <torch/script.h>
 #include <torch/torch.h> 
-#include <torch/Tensor.h> 
+#include <ATen/Tensor.h> 
+// #include "/usr/local/opt/opencv@4/include/opencv4/opencv2/opencv.hpp"
+// #include "/usr/local/opt/opencv@4/include/opencv4/opencv2/imgproc/imgproc.hpp"
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -9,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#define CV_BGR2RGB cv::COLOR_BGR2RGB
 /* main */
 int main(int argc, const char* argv[]) {
   if (argc < 4) {
@@ -18,9 +21,10 @@ int main(int argc, const char* argv[]) {
   }
 
   // Deserialize the ScriptModule from a file using torch::jit::load().
-  std::shared_ptr<torch::jit::script::Module> module = torch::jit::load(argv[1]);
+  // std::shared_ptr<torch::jit::script::Module> module = torch::jit::load(argv[1]);
+  torch::jit::script::Module module = torch::jit::load(argv[1]);
 
-  assert(module != nullptr);
+  // assert(module != nullptr);
   std::cout << "load model ok\n";
 
   // Create a vector of inputs.
@@ -29,7 +33,8 @@ int main(int argc, const char* argv[]) {
 
   // evalute time
   double t = (double)cv::getTickCount();
-  module->forward(inputs).toTensor();
+  // module->forward(inputs).toTensor();
+  module.forward(inputs).toTensor();
   t = (double)cv::getTickCount() - t;
   printf("execution time = %gs\n", t / cv::getTickFrequency());
   inputs.pop_back();
@@ -42,7 +47,8 @@ int main(int argc, const char* argv[]) {
   image.convertTo(img_float, CV_32F, 1.0/255);
   cv::resize(img_float, img_float, cv::Size(224, 224));
   //std::cout << img_float.at<cv::Vec3f>(56,34)[1] << std::endl;
-  auto img_tensor = torch::CPU(torch::kFloat32).tensorFromBlob(img_float.data, {1, 224, 224, 3});
+  // auto img_tensor = torch::CPU(torch::kFloat32).tensorFromBlob(img_float.data, {1, 224, 224, 3});
+  auto img_tensor = torch::from_blob(img_float.data, {1, 224, 224, 3}).to(torch::kFloat32);
   img_tensor = img_tensor.permute({0,3,1,2});
   img_tensor[0][0] = img_tensor[0][0].sub_(0.485).div_(0.229);
   img_tensor[0][1] = img_tensor[0][1].sub_(0.456).div_(0.224);
@@ -51,7 +57,7 @@ int main(int argc, const char* argv[]) {
   inputs.push_back(img_var);
   
   // Execute the model and turn its output into a tensor.
-  torch::Tensor out_tensor = module->forward(inputs).toTensor();
+  torch::Tensor out_tensor = module.forward(inputs).toTensor();
   std::cout << out_tensor.slice(/*dim=*/1, /*start=*/0, /*end=*/10) << '\n';
 
   // Load labels
